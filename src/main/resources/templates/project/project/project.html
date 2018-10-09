@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="container-div ui-layout-center">
+    <div class="row">
+        <div class="col-sm-12 select-info">
+            <form id="project-form">
+                <div class="select-list gd">
+                    <ul>
+                        <li>
+							项目ID：<input type="text" name="projectId"/>
+                        </li>
+                        <li>
+							所属部门：<input type="text" name="deptId"/>
+                        </li>
+                        <li>
+							所属组：<input type="text" name="groupId"/>
+                        </li>
+                        <li>
+							项目名称：<input type="text" name="name"/>
+                        </li>
+                        <li>
+							项目类型：<input type="text" name="type"/>
+                        </li>
+                        <li>
+							项目经理：<input type="text" name="leader"/>
+                        </li>
+                        <li>
+							销售经理：<input type="text" name="seller"/>
+                        </li>
+                        <li>
+							客户：<input type="text" name="customers"/>
+                        </li>
+                        <li>
+							SVN用户名：<input type="text" name="svnUser"/>
+                        </li>
+                        <li>
+							SVN密码：<input type="text" name="svnPassword"/>
+                        </li>
+                        <li>
+							SVN路径：<input type="text" name="svnPath"/>
+                        </li>
+                        <li>
+							项目状态：<input type="text" name="status"/>
+                        </li>
+                        <li>
+							创建者：<input type="text" name="createBy"/>
+                        </li>
+                        <li>
+							创建时间：<input type="text" name="createTime"/>
+                        </li>
+                        <li>
+							更新者：<input type="text" name="updateBy"/>
+                        </li>
+                        <li>
+							更新时间：<input type="text" name="updateTime"/>
+                        </li>
+                        <li>
+							备注：<input type="text" name="remark"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-default btn-rounded btn-sm" onclick="$.table.reset($('form').attr('id'))"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search($('form').attr('id'))"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-success btn-rounded btn-sm" onclick="$.table.exportExcel($('form').attr('id'))"><i class="fa fa-download"></i>&nbsp;下载</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+		<div class="btn-group hidden-xs" id="toolbar" role="group">
+			<a class="btn btn-outline btn-success btn-rounded" onclick="$.operate.add()" shiro:hasPermission="project:project:add">
+				<i class="fa fa-plus"></i> 新增
+			</a>
+			<a class="btn btn-outline btn-danger btn-rounded" onclick="$.operate.batRemove()" shiro:hasPermission="project:project:remove">
+				<i class="fa fa-trash-o"></i> 删除
+			</a>
+		</div>
+			
+		<div class="col-sm-12 select-info table-striped">
+			<table id="bootstrap-table" data-mobile-responsive="true"></table>
+		</div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+	var editFlag = [[${@permission.hasPermi('project:project:edit')}]];
+	var removeFlag = [[${@permission.hasPermi('project:project:remove')}]];
+	var prefix = ctx + "project/project"
+
+	$(function() {
+		var options = {
+			url: prefix + "/list",
+			createUrl: prefix + "/add",
+			updateUrl: prefix + "/edit/{id}",
+			removeUrl: prefix + "/remove",
+			modalName: "项目",
+			columns: [{
+				checkbox: true
+			},
+			{
+				field : 'projectId',
+				title : '项目ID'
+			},
+			{
+				field : 'deptId',
+				title : '所属部门'
+			},
+			{
+				field : 'groupId',
+				title : '所属组'
+			},
+			{
+				field : 'name',
+				title : '项目名称'
+			},
+			{
+				field : 'type',
+				title : '项目类型'
+			},
+			{
+				field : 'leader',
+				title : '项目经理'
+			},
+			{
+				field : 'seller',
+				title : '销售经理'
+			},
+			{
+				field : 'customers',
+				title : '客户'
+			},
+			{
+				field : 'svnUser',
+				title : 'SVN用户名'
+			},
+			{
+				field : 'svnPassword',
+				title : 'SVN密码'
+			},
+			{
+				field : 'svnPath',
+				title : 'SVN路径'
+			},
+			{
+				field : 'status',
+				title : '项目状态'
+			},
+			{
+				field : 'createBy',
+				title : '创建者'
+			},
+			{
+				field : 'createTime',
+				title : '创建时间'
+			},
+			{
+				field : 'updateBy',
+				title : '更新者'
+			},
+			{
+				field : 'updateTime',
+				title : '更新时间'
+			},
+			{
+				field : 'remark',
+				title : '备注'
+			},
+			{
+				title: '操作',
+				align: 'center',
+				formatter: function(value, row, index) {
+					var actions = [];
+					actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.edit(\'' + row.projectId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+					actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.projectId + '\')"><i class="fa fa-remove"></i>删除</a>');
+					return actions.join('');
+				}
+			}]
+		};
+		$.table.init(options);
+	});
+</script>
+</body>
+</html>

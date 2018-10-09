@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.miser.rdm.project.product.mapper.ProductMapper">
+    
+    <resultMap type="Product" id="ProductResult">
+        <result property="productId" column="product_id"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="name" column="name"/>
+        <result property="leader" column="leader"/>
+        <result property="type" column="type"/>
+        <result property="svnUser" column="svn_user"/>
+        <result property="svnPassword" column="svn_password"/>
+        <result property="svnPath" column="svn_path"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <association property="dept" column="dept_id" javaType="Dept" resultMap="deptResult"/>
+    </resultMap>
+
+    <resultMap id="deptResult" type="Dept">
+        <id property="deptId" column="dept_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="orderNum" column="order_num"/>
+        <result property="status" column="dept_status"/>
+    </resultMap>
+
+    <sql id="selectProductVo">
+        select pd.product_id, pd.dept_id, pd.name, pd.leader, pd.type, pd.svn_user, pd.svn_password, pd.svn_path, pd.status, pd.create_by, pd.create_time, pd.update_by, pd.update_time, pd.remark,
+        d.dept_id, d.dept_name
+        from rdm_product pd
+            left join sys_dept d on pd.dept_id = d.dept_id
+    </sql>
+	
+    <select id="selectProductList" parameterType="Product" resultMap="ProductResult">
+        <include refid="selectProductVo"/>
+        <where>
+             <if test="name != null and name != ''">AND pd.name like concat('%', #{name}, '%')</if>
+             <if test="type != null and type != ''"> and pd.type = #{type}</if>
+             <if test="status != null and status != ''"> and pd.status = #{status}</if>
+         </where>
+    </select>
+    
+    <select id="selectProductById" parameterType="Integer" resultMap="ProductResult">
+        <include refid="selectProductVo"/>
+        where product_id = #{productId}
+    </select>
+        
+    <insert id="insertProduct" parameterType="Product">
+        insert into rdm_product
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="productId != null and productId != '' ">product_id,</if>
+			<if test="deptId != null and deptId != '' ">dept_id,</if>
+			<if test="name != null and name != '' ">name,</if>
+			<if test="leader != null and leader != '' ">leader,</if>
+			<if test="type != null and type != '' ">type,</if>
+			<if test="svnUser != null and svnUser != '' ">svn_user,</if>
+			<if test="svnPassword != null and svnPassword != '' ">svn_password,</if>
+			<if test="svnPath != null and svnPath != '' ">svn_path,</if>
+			<if test="status != null and status != '' ">status,</if>
+			<if test="createBy != null and createBy != '' ">create_by,</if>
+			<if test="remark != null and remark != '' ">remark,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="productId != null and productId != ''">#{productId},</if>
+			<if test="deptId != null and deptId != ''">#{deptId},</if>
+			<if test="name != null and name != ''">#{name},</if>
+			<if test="leader != null and leader != ''">#{leader},</if>
+			<if test="type != null and type != ''">#{type},</if>
+			<if test="svnUser != null and svnUser != ''">#{svnUser},</if>
+			<if test="svnPassword != null and svnPassword != ''">#{svnPassword},</if>
+			<if test="svnPath != null and svnPath != ''">#{svnPath},</if>
+			<if test="status != null and status != ''">#{status},</if>
+			<if test="createBy != null and createBy != ''">#{createBy},</if>
+			<if test="remark != null and remark != ''">#{remark},</if>
+            sysdate()
+         </trim>
+    </insert>
+	 
+    <update id="updateProduct" parameterType="Product">
+        update rdm_product
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null  ">dept_id = #{deptId},</if>
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="leader != null  and leader != ''  ">leader = #{leader},</if>
+            <if test="type != null  and type != ''  ">type = #{type},</if>
+            <if test="svnUser != null  and svnUser != ''  ">svn_user = #{svnUser},</if>
+            <if test="svnPassword != null  and svnPassword != ''  ">svn_password = #{svnPassword},</if>
+            <if test="svnPath != null  and svnPath != ''  ">svn_path = #{svnPath},</if>
+            <if test="status != null  and status != ''  ">status = #{status},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where product_id = #{productId}
+    </update>
+
+	<delete id="deleteProductById" parameterType="Integer">
+        delete from rdm_product where product_id = #{productId}
+    </delete>
+	
+    <delete id="deleteProductByIds" parameterType="String">
+        delete from rdm_product where product_id in 
+        <foreach item="productId" collection="array" open="(" separator="," close=")">
+            #{productId}
+        </foreach>
+    </delete>
+    
+</mapper>

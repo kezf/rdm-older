@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="container-div ui-layout-center">
+    <div class="row">
+        <div class="col-sm-12 select-info">
+            <form id="projectGroup-form">
+                <div class="select-list gd">
+                    <ul>
+                        <li>
+                            组名称：<input type="text" name="name"/>
+                        </li>
+                        <li>
+                            状态：<select name="status" th:with="type=${@dict.getType('sys_normal_disable')}">
+                            <option value="">所有</option>
+                            <option th:each="e : ${type}" th:text="${e['dictLabel']}" th:value="${e['dictValue']}"></option>
+                        </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-default btn-rounded btn-sm" onclick="$.table.reset($('form').attr('id'))"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search($('form').attr('id'))"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-success btn-rounded btn-sm" onclick="$.table.exportExcel($('form').attr('id'))"><i class="fa fa-download"></i>&nbsp;下载</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group hidden-xs" id="toolbar" role="group">
+            <a class="btn btn-outline btn-success btn-rounded" onclick="$.operate.add()" shiro:hasPermission="project:projectGroup:add">
+                <i class="fa fa-plus"></i> 新增
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-info table-striped">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('project:projectGroup:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('project:projectGroup:remove')}]];
+    var datas = [[${@dict.getType('sys_normal_disable')}]];
+    var prefix = ctx + "project/projectGroup";
+
+    $(function () {
+        var options = {
+            id: "projectId",
+            parentId: "parentId",
+            url: prefix + "/list",
+            createUrl: prefix + "/add/{id}",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove/{id}",
+            modalName: "项目组",
+            columns: [{
+                field: 'name',
+                title: '组名称'
+            },
+                {
+                    field: 'orderNum',
+                    title: '排序',
+                    align: "center"
+                },
+                {
+                    field: 'status',
+                    title: '状态',
+                    align: "center",
+                    formatter: function (item, index) {
+                        return $.table.selectDictLabel(datas, item.status);
+                    }
+                },
+                {
+                    field: 'createTime',
+                    title: '创建时间',
+                    align: "center"
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        if (row.parentId != 0) {
+                            var actions = [];
+                            actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.edit(\'' + row.groupId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                            actions.push('<a class="btn btn-info  btn-xs ' + addFlag + '" href="#" onclick="$.operate.add(\'' + row.groupId + '\')"><i class="fa fa-plus">新增</i></a> ');
+                            actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.groupId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                            return actions.join('');
+                        } else {
+                            return "";
+                        }
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

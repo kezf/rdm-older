@@ -1,0 +1,12 @@
+### macOS template
+*.DS_Store
+
+# Thumbnails
+._*
+
+### Maven template
+target/
+
+### JetBrains template
+.idea/
+*.iml
